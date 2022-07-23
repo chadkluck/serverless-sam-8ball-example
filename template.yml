@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+- AWS::Serverless-2016-10-31
+Description: "SAM example of a Lambda function and API which grants magical predictions"
+
+Parameters:
+  MyVar:
+    Type: String
+    Description: "Just an example of a parameter variable you can pass in"
+    Default: "42"
+  FavoriteColor:
+    Type: String
+    Description: "What is your favorite color?"
+    Default: "black"
+
+Globals:
+  Function:
+    AutoPublishAlias: live
+
+# API Gateway is automatically created with just the function resource declared.
+# Deploy as is and see how it works.
+# Then, to see how things change when you declare the api gateway on your own, uncomment all the lines and re-build and re-deploy
+# Note that the api sub domain will change (and will be listed in the Outputs section). This is because you discarded the default API and declared your own.
+# You may uncomment _EVERYTHING_ below this line (and remove this comment block if you wish)
+
+Resources:
+#  WebApi:
+#    Type: AWS::Serverless::Api
+#    Properties: 
+#      StageName: "Prod"
+  EightBallFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/
+      Handler: index.get
+      Runtime: nodejs14.x
+      Environment:
+          Variables:
+            MyVar: !Ref MyVar
+            FavoriteColor: !Ref FavoriteColor
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+#            RestApiId: !Ref WebApi
+#Outputs:
+#  UserAPI:
+#    Description: "API Gateway URL"
+#    Value: !Sub "https://${WebApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

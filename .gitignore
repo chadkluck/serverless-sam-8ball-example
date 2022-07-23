@@ -1,0 +1,8 @@
+.*
+!/.gitignore
+
+output.yaml
+*.toml
+
+*.zip
+*desktop.ini
