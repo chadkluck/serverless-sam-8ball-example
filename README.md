@@ -103,11 +103,50 @@ Check it out: `aws sts get-caller-identity`
 
 ## Once you have a user account
 
-Make sure the following roles/permissions are set up:
+Make sure your role has the following permissions:
 
 - arn:aws:iam::aws:policy/AWSLambdaFullAccess
 - arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator
-- arn:aws:iam::aws:policy/IAMFullAccess
+- arn:aws:iam::aws:policy/CustomPolicySAM
+
+AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. Create the CustomPolicySAM with the following:
+
+```JSON
+{
+	"Sid": "SAMIAMPolicies",
+	"Effect": "Allow",
+	"Action": [
+		"iam:CreateRole",
+		"iam:AttachRolePolicy",
+		"iam:DetachRolePolicy",
+		"iam:GetRole",
+		"iam:DeleteRole",
+		"iam:TagPolicy",
+		"iam:TagRole",
+		"iam:UntagPolicy",
+		"iam:UntagRole"
+	],
+	"Resource": "arn:aws:iam::*:role/sam-*"
+},
+{
+	"Sid": "SAMPassRolePolicy",
+	"Effect": "Allow",
+	"Action": [
+		"iam:PassRole"
+	],
+	"Resource": "arn:aws:iam::*:role/sam-*",
+	"Condition": {
+	    "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
+	    "ArnLike": {
+	        "iam:AssociatedResourceARN": [
+	            "arn:aws:lambda:*:*:function:sam-*"
+	        ]
+	    }
+	}
+}
+```
+
+In the above policy JSON, `*:*` in the `iam:AssociatedResourceARN` should be replaced with your region and account id, such as `"arn:aws:lambda:us-east-2:1234567890123:function:sam-*"`
 
 Also create a new policy on the account for for CloudFormation:
 
