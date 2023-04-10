@@ -116,36 +116,36 @@ AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. 
     "Version": "2012-10-17",
     "Statement": [
         {
-        	"Sid": "SAMIAMPolicies",
-        	"Effect": "Allow",
-        	"Action": [
-        		"iam:CreateRole",
-        		"iam:AttachRolePolicy",
-        		"iam:DetachRolePolicy",
-        		"iam:GetRole",
-        		"iam:DeleteRole",
-        		"iam:TagPolicy",
-        		"iam:TagRole",
-        		"iam:UntagPolicy",
-        		"iam:UntagRole"
-        	],
-        	"Resource": "arn:aws:iam::*:role/sam-*"
+            "Sid": "SAMIAMPolicies",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateRole",
+                "iam:AttachRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:GetRole",
+                "iam:DeleteRole",
+                "iam:TagPolicy",
+                "iam:TagRole",
+                "iam:UntagPolicy",
+                "iam:UntagRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/sam-*"
         },
         {
-        	"Sid": "SAMPassRolePolicy",
-        	"Effect": "Allow",
-        	"Action": [
-        		"iam:PassRole"
-        	],
-        	"Resource": "arn:aws:iam::*:role/sam-*",
-        	"Condition": {
-        	    "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
-        	    "ArnLike": {
-        	        "iam:AssociatedResourceARN": [
-        	            "arn:aws:lambda:*:*:function:sam-*"
-        	        ]
-        	    }
-        	}
+            "Sid": "SAMPassRolePolicy",
+            "Effect": "Allow",
+            "Action": [
+                "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/sam-*",
+            "Condition": {
+                "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
+                "ArnLike": {
+                    "iam:AssociatedResourceARN": [
+                        "arn:aws:lambda:*:*:function:sam-*"
+                    ]
+                }
+            }
         }
     ]
 }
@@ -265,11 +265,11 @@ In `template.yml` you'll notice several lines commented out. Uncomment them (exc
 
 During the CloudFormation stack changeset display you'll notice the old ServerlessRestAPI will be deleted and replaced with the new one.
 
-After the deploy you'll also notice a new output sectin after CloudFormation completes, called *Outputs*. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
+After the deploy you'll also notice a new output sectin after CloudFormation completes, called _Outputs_. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
 
 It is important to note that CloudFormation does not delete already created resources from your template. It just updates them if there are any changes. If you were to add an authorization section to your API it would just update the resource and your URI would not change.
 
-From the `Outputs` in the terminal, copy the new URL and go there in your browser. From here on out, unless you delete the resource (or rename it) in your template, this shouldn't change between deploys for -*THIS*_ stack.
+From the `Outputs` in the terminal, copy the new URL and go there in your browser. From here on out, unless you delete the resource (or rename it) in your template, this shouldn't change between deploys for _THIS_ stack.
 
 ## Add Another Stack
 
@@ -311,7 +311,7 @@ Notice that both the test and production stacks now how their own unique API URL
 
 Now that you have multiple stacks, and you're sure to create more applications, you'll want to keep track of them all using tags. Though CloudFormation will clean up any deleted resources it is helpful to tag your resources so that others know more about them.
 
-The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the _samconfig.toml_ file and it will replicate those tags among *ALL* the resources for that stack! Yay! No more forgetting/neglecting organization required tags such as contact info and cost center!
+The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the _samconfig.toml_ file and it will replicate those tags among _ALL_ the resources for that stack! Yay! No more forgetting/neglecting organization required tags such as contact info and cost center!
 
 Let's start with just a few. You can add more later. In your _samconfig.toml_ file add this line to the end (Be sure to change the Creator to your name):
 
@@ -488,7 +488,7 @@ Test it out using the API url for _sam-8ball-test_
 
 When you are happy, and the 8Ball tells you to, go ahead and deploy to prod. `sam deploy --config-file samconfig-prod.toml`
 
-No need to ask your app if you mastered SAM builds and deploys, you have! *ta-da!* *confetti*
+No need to ask your app if you mastered SAM builds and deploys, you have! _ta-da!_ _confetti_
 
 ## Next Steps and Final Notes
 
@@ -550,7 +550,7 @@ CodeStar will build you a repository, a pipeline, and a project dashboard. It wi
 
 As a bonus, you still get AWS-SAM-CLI functions such as `sam logs -n EightBallFunction --stack-name sam-8ball-prod --tail` in CodeStar because it is all CloudFormation Stack and SAM based.
 
-Also, CodeStar uses a standard naming convention for all resources which makes it easier to set up permissions boundaries between groups within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix. (`awscodestar-dept-*` to be exact.)). Note that CodeStar project IDs are limited to 15 characters, so after you add a 3 to 4 letter department code and a dash, we're basically back to 8 character filename days of DOS.)
+Also, CodeStar uses a standard naming convention for all resources which makes it easier to set up permissions boundaries between groups within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix. (`awscodestar-dept-*` to be exact.)). Note that CodeStar project IDs are limited to 15 characters, so after you add a 3 to 4 letter department code and a dash, we're basically back to 8 character filename days of DOS.
 
 First, in the CodeStar online console, use one of the templates to start a test project. I doubt any real production projects will come out of this so think of it as a sandbox to just play around in. Note that templates with things like Elastic Beanstalk and EC2 will cost money. Be sure to delete those projects when done.
 
