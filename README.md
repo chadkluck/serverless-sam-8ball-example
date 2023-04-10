@@ -73,7 +73,7 @@ After install:
 
 `sam --version`
 
-And you should get something like: `SAM CLI, version 1.8.0`
+And you should get something like: `SAM CLI, version 1.78.0`
 
 ## Set up your access credentials
 
@@ -139,11 +139,11 @@ AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. 
             ],
             "Resource": "arn:aws:iam::*:role/sam-*",
             "Condition": {
-                "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
+                "StringEquals": { 
+                    "iam:PassedToService": "lambda.amazonaws.com"
+                },
                 "ArnLike": {
-                    "iam:AssociatedResourceARN": [
-                        "arn:aws:lambda:*:*:function:sam-*"
-                    ]
+                    "iam:AssociatedResourceARN": "arn:aws:lambda:*:*:function:sam-*"
                 }
             }
         }
@@ -151,7 +151,7 @@ AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. 
 }
 ```
 
-In the above policy JSON, `*:*` in the `iam:AssociatedResourceARN` should be replaced with your region and account id, such as `"arn:aws:lambda:us-east-2:1234567890123:function:sam-*"`
+In the above policy JSON, `*:*` in the `iam:AssociatedResourceARN` should be replaced with your region and account ID, such as `"arn:aws:lambda:us-east-2:1234567890123:function:sam-*"`. It will work as is, but it is best practice to always scope down permissions as much as possible. You can also replace the `*` in `Resource` with your account ID. `"arn:aws:iam::1234567890123:role/sam-*"` (region isn't necessary).
 
 Also create a new policy on the account for for CloudFormation:
 
