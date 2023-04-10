@@ -113,36 +113,41 @@ AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. 
 
 ```JSON
 {
-	"Sid": "SAMIAMPolicies",
-	"Effect": "Allow",
-	"Action": [
-		"iam:CreateRole",
-		"iam:AttachRolePolicy",
-		"iam:DetachRolePolicy",
-		"iam:GetRole",
-		"iam:DeleteRole",
-		"iam:TagPolicy",
-		"iam:TagRole",
-		"iam:UntagPolicy",
-		"iam:UntagRole"
-	],
-	"Resource": "arn:aws:iam::*:role/sam-*"
-},
-{
-	"Sid": "SAMPassRolePolicy",
-	"Effect": "Allow",
-	"Action": [
-		"iam:PassRole"
-	],
-	"Resource": "arn:aws:iam::*:role/sam-*",
-	"Condition": {
-	    "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
-	    "ArnLike": {
-	        "iam:AssociatedResourceARN": [
-	            "arn:aws:lambda:*:*:function:sam-*"
-	        ]
-	    }
-	}
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        	"Sid": "SAMIAMPolicies",
+        	"Effect": "Allow",
+        	"Action": [
+        		"iam:CreateRole",
+        		"iam:AttachRolePolicy",
+        		"iam:DetachRolePolicy",
+        		"iam:GetRole",
+        		"iam:DeleteRole",
+        		"iam:TagPolicy",
+        		"iam:TagRole",
+        		"iam:UntagPolicy",
+        		"iam:UntagRole"
+        	],
+        	"Resource": "arn:aws:iam::*:role/sam-*"
+        },
+        {
+        	"Sid": "SAMPassRolePolicy",
+        	"Effect": "Allow",
+        	"Action": [
+        		"iam:PassRole"
+        	],
+        	"Resource": "arn:aws:iam::*:role/sam-*",
+        	"Condition": {
+        	    "StringEquals": {"iam:PassedToService": "lambda.amazonaws.com"},
+        	    "ArnLike": {
+        	        "iam:AssociatedResourceARN": [
+        	            "arn:aws:lambda:*:*:function:sam-*"
+        	        ]
+        	    }
+        	}
+        }
+    ]
 }
 ```
 
