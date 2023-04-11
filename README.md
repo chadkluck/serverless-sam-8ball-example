@@ -202,7 +202,7 @@ Learn more: <https://docs.aws.amazon.com/serverless-application-model/latest/dev
 
 ### Deploy
 
-Now you will need to come up with a name for your stack. If you are using your own account, for the purposes of this tutorial I would recommend `sam-8ball-1`. If you are using an account shared with others I would suggest adding your name and test to the stack name. `sam-8ball-<yourname>-1`. We will later deploy a `-test` and a `-prod` and, if you need to, you may always increment the number on the end. You can deploy the same app any number of times!
+Now you will need to come up with a name for your stack. If you are using your own account, for the purposes of this tutorial I would recommend `sam-8ball-1`. If you are using an account shared with others I would suggest adding your name to the stack name. `sam-8ball-<yourname>-1`. We will later deploy a `-test` and a `-prod` and, if you need to, you may always increment the number on the end. You can deploy the same app any number of times!
 
 Let's deploy our app. For the first deploy we will add `--guided` to the command (to set up our parameters).
 
@@ -219,6 +219,8 @@ Parameter FavoriteColor [black]: blue
 Confirm changes before deploy [y/N]: N
 #SAM needs permission to be able to create roles to connect to the resources in your template
 Allow SAM CLI IAM role creation [Y/n]: Y
+#Preserves the state of previously provisioned resources when an operation fails
+Disable rollback [y/N]: N
 EightBallFunction may not have authorization defined, Is this okay? [y/N]: y
 Save arguments to configuration file [Y/n]: Y
 SAM configuration file [samconfig.toml]:
@@ -257,7 +259,36 @@ Because the Lambda function uses an API event, CloudFormation automatically crea
 
 This is fine, but as you create advanced applications you may want to define your own API Gateway with advanced authorization (such as API keys) or even routing endpoint paths to different Lambda functions.
 
-In `template.yml` you'll notice several lines commented out. Uncomment them (except for the real comments) and re-build and re-deploy your application.
+In `template.yml` you'll notice several lines commented out under `Resources` and `Outputs`. Uncomment them (except for the real comments) and re-build and re-deploy your application.
+
+```YAML
+Resources:
+  WebApi:
+    Type: AWS::Serverless::Api
+    Properties: 
+      StageName: "Prod"
+  EightBallFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/
+      Handler: index.get
+      Runtime: nodejs16.x
+      Environment:
+          Variables:
+            MyVar: !Ref MyVar
+            FavoriteColor: !Ref FavoriteColor
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId: !Ref WebApi
+Outputs:
+  UserAPI:
+    Description: "API Gateway URL"
+    Value: !Sub "https://${WebApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+```
 
 `sam build`
 
@@ -265,7 +296,7 @@ In `template.yml` you'll notice several lines commented out. Uncomment them (exc
 
 During the CloudFormation stack changeset display you'll notice the old ServerlessRestAPI will be deleted and replaced with the new one.
 
-After the deploy you'll also notice a new output sectin after CloudFormation completes, called _Outputs_. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
+After the deploy you'll also notice a new output section after CloudFormation completes, called _Outputs_. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
 
 It is important to note that CloudFormation does not delete already created resources from your template. It just updates them if there are any changes. If you were to add an authorization section to your API it would just update the resource and your URI would not change.
 
@@ -405,9 +436,9 @@ Click on the Physical ID for EightBallFunction. This will take you to the Lambda
 
 If you scroll down you'll see Environment variables which is set to the parameters we passed to our template and in turn our template assigned to the Lambda environment. If we change the value on this page, just like with the code, it will be overwritten on the next deploy.
 
-If you scroll down to the Tags section you'll see 4 tags that are automatically created by CloudFormation as well as the ones we assigned.
+If you go into the Configuration tab and into the Tags section you'll see 4 tags that are automatically created by CloudFormation as well as the ones we assigned.
 
-Go ahead and return to the web page you have open for your 8Ball (test) API and ask a few questions while hitting refresh because we're going to check the logs next.
+Go ahead and return to the web page you have open for your 8Ball (test) API and ask a few questions while hitting refresh because we're going to check the logs next. (If you closed it, you can go to the CloudFormation stack and find it under Outputs.)
 
 ### CloudWatch Logs
 
