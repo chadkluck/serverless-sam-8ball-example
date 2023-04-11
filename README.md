@@ -575,14 +575,10 @@ If you create a CodePipeline then when you merge and push your changes to your _
 
 This is where I make a plug for AWS CodeStar. However, learning CodeStar and then CodeStar CLI is another progression in understanding SAM. Once you have a lot of concepts of SAM figured out, you may want to start looking into seeing if CodeStar is right for you. I really recommend getting the concepts of SAM down first.
 
-If you are fine setting up your repo, building, packaging, and deploying manually from the CLI, then that's okay. But if you need more automation then look into CodeStar.
+If you are fine setting up your repo, building, packaging, and deploying manually from the CLI, then that's okay. But if you need more automation then look into CodeStar or the starter pipeline I developed along with a tutorial.
 
-CodeStar will build you a repository, a pipeline, and a project dashboard. It will also allow you to add team members and connect to issue trackers like JIRA.
+Both CodeStar and the Atlantis pipeline I created will build you a repository, a pipeline, and a project dashboard.
 
-As a bonus, you still get AWS-SAM-CLI functions such as `sam logs -n EightBallFunction --stack-name sam-8ball-prod --tail` in CodeStar because it is all CloudFormation Stack and SAM based.
+They also use a standard naming convention for all resources which makes it easier to set up permissions boundaries between groups within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix.)
 
-Also, CodeStar uses a standard naming convention for all resources which makes it easier to set up permissions boundaries between groups within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix. (`awscodestar-dept-*` to be exact.)). Note that CodeStar project IDs are limited to 15 characters, so after you add a 3 to 4 letter department code and a dash, we're basically back to 8 character filename days of DOS.
-
-First, in the CodeStar online console, use one of the templates to start a test project. I doubt any real production projects will come out of this so think of it as a sandbox to just play around in. Note that templates with things like Elastic Beanstalk and EC2 will cost money. Be sure to delete those projects when done.
-
-After you have built a few projects using the web console, start checking out tutorials on using CodeStar from the AWS-CLI. That is where the fun comes in! Once you learn more about CodeStar templates (which are templates that create your development environment wrapped around your application template and code) you can create project templates that lock down IAM policies and expand your project to have multiple pipelines (such as test and production).
+Ready for more? [Visit my CodeStar and starter pipeline tutorial on GitHub](https://github.com/chadkluck/serverless-deploy-pipeline-atlantis)
