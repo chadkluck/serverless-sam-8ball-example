@@ -33,7 +33,8 @@ Resources:
     Properties:
       CodeUri: app/
       Handler: index.get
-      Runtime: nodejs14.x
+      Runtime: nodejs20.x
+      RolePath: "/"
       Environment:
           Variables:
             MyVar: !Ref MyVar
