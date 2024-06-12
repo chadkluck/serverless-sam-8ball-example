@@ -34,7 +34,8 @@ Resources:
       CodeUri: app/
       Handler: index.get
       Runtime: nodejs20.x
-      RolePath: "/"
+      RolePath: /
+      PermissionsBoundary: !Ref 'AWS::NoValue' # Leave as-is unless your organization requires a permissions boundary
       Environment:
           Variables:
             MyVar: !Ref MyVar

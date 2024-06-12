@@ -20,6 +20,8 @@ Check Python to make sure it is installed.
 
 `python --version`
 
+(On Mac or Linux it may be `python3 --version`)
+
 If it is not installed, go to the Python website for instructions: <https://www.python.org>
 
 ### PIP
@@ -54,7 +56,10 @@ NOTE: Docker will not run on Windows 10 Home Edition.
 
 <https://nodejs.org>
 
-I recommend 14 or later. As of 2/3/2021, version 14 is supported by Lambda. Make sure the version you plan on using is set in _template.yml_.
+I recommend 20 or later. As of 11/14/2023, Node version 20 is supported by Lambda. Make sure the version you plan on using is set in `template.yml`.
+
+More information on [Lambda Supported Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
+
 
 ### SAM Command Line Tools
 
@@ -73,15 +78,15 @@ After install:
 
 `sam --version`
 
-And you should get something like: `SAM CLI, version 1.78.0`
+And you should get something like: `SAM CLI, version 1.118.0`
 
 ## Set up your access credentials
 
 AWS SAM CLI uses the same credentials from AWS CLI. You can skip this step if you are already using AWS CLI to access your AWS resources.
 
-You will need an access key ID and secret key ID (Note: For enterprise managed accounts this is set up differently)
+You will need an access key ID and secret key ID (Note: For enterprise and SSO managed accounts this is set up differently)
 
-Note that there are many ways to do this so that the IAM user has restricted access. If you are on your personal account the following steps are okay. After all, you are master of your own domain. If you are on an organizationl account where changes will impact other projects and people, follow the practices of your IT org.
+Note that there are many ways to do this so that the IAM user has restricted access. If you are on your personal account the following steps are okay. After all, you are master of your own domain. If you are on an organizational account where changes will impact other projects and people, follow the practices of your IT org.
 
 The following steps are (for the most part) taken from chapter 2 of _Running Serverless_ by Gojko Adzic. For any alternate steps, or troubleshooting, I would refer you to the book.
 
@@ -97,7 +102,7 @@ The following steps are (for the most part) taken from chapter 2 of _Running Ser
 
 Once you have the keys run the following: `aws configure`
 
-Paste in the keys when prompted. For region use `us-east-2` or whatever your default region should be. For default output use `json` or press Enter to keep it unset.
+Paste in the keys when prompted. For region use `us-east-1` or whatever your default region should be. For default output use `json` or press Enter to keep it unset.
 
 Check it out: `aws sts get-caller-identity`
 
@@ -168,7 +173,7 @@ Also create a new policy on the account for for CloudFormation:
 }
 ```
 
-These are still pretty wide permissions, and are best reserved for sandbox and development, not production environments.
+These are still pretty wide permissions, and are best reserved for sandbox and development, not production accounts.
 
 For this example we will be using names such as `sam-8ball-*` so you could restrict resources based on that or whatever other naming convention you'll be using for the example. Typically you'll want to segregate dev units by naming conventions in the arn anyway.
 
@@ -182,9 +187,11 @@ The book _Running Serverless_ by Gojko Adzic will walk you through creating a Cl
 
 The commands below will give you a quick hands-on approach, but the actions behind the commands are explained better in the book.
 
-One key to understanding SAM and eventually maybe even CodeStar is to occasionally look under the hood and gain an understanding of what is beneath as you progress. A lot is automactially done for you as you start out, but as you see and begin to understand the magic, and begin to craft your own code and yaml, you can wield even greater power offered by the platform.
+One key to understanding SAM and eventually maybe even CodeStar is to occasionally look under the hood and gain an understanding of what is beneath as you progress. A lot is automatically done for you as you start out, but as you see and begin to understand the magic, and begin to craft your own code and yaml, you can wield even greater power offered by the platform.
 
 But, before we start tinkering under the hood, let's take it for a test drive!
+
+> If your organization requires the use of IAM Role Paths and Permissions Boundaries, you will need to update the Lambda function properties in `template.yml` accordingly.
 
 ## Build and Deploy
 
@@ -198,7 +205,7 @@ On the command line:
 
 `sam build`
 
-Learn more: <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html>
+Learn more about [sam build on the CLI Command Reference page](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html)
 
 ### Deploy
 
@@ -227,19 +234,19 @@ SAM configuration file [samconfig.toml]:
 SAM configuration environment [default]:
 ```
 
-It will now save your settings in a _samconfig.toml_ file so you don't need to mess with long commands such as `sam deploy --template-file output.yaml --stack-name sam-8ball-1 --capabilities CAPABILITY_IAM`.
+It will now save your settings in a `samconfig.toml` file so you don't need to mess with long commands such as `sam deploy --template-file output.yaml --stack-name sam-8ball-1 --capabilities CAPABILITY_IAM`.
 
 From now on you can just do `sam deploy`
 
 Your stack should be in the deploy process now. If there are any errors you will need to correct them and then deploy again. `sam deploy`
 
-You will see a message that says `EightBallFunction may not have authorization defined.` That is okay. All it means is that you are creating a public api with no authorization requirements. When you are ready to experiement with defining authorization requirements in your template file check out <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-controlling-access-to-apis.html>
+You will see a message that says `EightBallFunction may not have authorization defined.` That is okay. All it means is that you are creating a public api with no authorization requirements. When you are ready to experiment with defining authorization requirements in your template file check out [Controlling Access to APIs](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-controlling-access-to-apis.html).
 
-Learn more about sam deploy: <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html>
+Learn more about the [sam deploy command](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html)
 
 ## Call Your Endpoint
 
-API Endpoints are in the form of `https://<apiID>.execute-api.<region>.amazonaws.com/Prod/` (There is a way of getting rid of the `/Prod/` at the end but we're not going to get into that so you'll just have to deal with that for now.)
+API Endpoints are in the form of `https://{{apiID}}.execute-api.{{region}}.amazonaws.com/Prod/` (There is a way of getting rid of the `/Prod/` at the end but we're not going to get into that so you'll just have to deal with that for now.)
 
 In the terminal, enter the following where `sam-8ball-1` is the name of your stack.
 
@@ -247,7 +254,7 @@ In the terminal, enter the following where `sam-8ball-1` is the name of your sta
 
 Now, think of a Yes/No question.
 
-Then, take that ID (and your region) and go to: `https://<apiID>.execute-api.<region>.amazonaws.com/Prod/`
+Then, take that ID (and your region) and go to: `https://{{apiID}}.execute-api.{{region}}.amazonaws.com/Prod/`
 
 You should receive a mystical JSON response!
 
@@ -272,7 +279,9 @@ Resources:
     Properties:
       CodeUri: app/
       Handler: index.get
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
+      RolePath: /
+      PermissionsBoundary: !Ref 'AWS::NoValue' # don't worry about this unless your organization requires a permissions boundary
       Environment:
           Variables:
             MyVar: !Ref MyVar
@@ -296,7 +305,7 @@ Outputs:
 
 During the CloudFormation stack changeset display you'll notice the old ServerlessRestAPI will be deleted and replaced with the new one.
 
-After the deploy you'll also notice a new output section after CloudFormation completes, called _Outputs_. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
+After the deploy you'll also notice a new output section after CloudFormation completes, called `Outputs`. It was created by the `Outputs` section in your template. This lists the _new_ domain to access your app. This domain will not change unless you delete the API resource from your template, or give it a new logical name.
 
 It is important to note that CloudFormation does not delete already created resources from your template. It just updates them if there are any changes. If you were to add an authorization section to your API it would just update the resource and your URI would not change.
 
@@ -304,7 +313,7 @@ From the `Outputs` in the terminal, copy the new URL and go there in your browse
 
 ## Add Another Stack
 
-So you have a Stack named _sam-8ball-1_ (or something similar). How does this work if you want to deploy multiple copies of an application? If these were microsites with different database connections? Or, if you wanted to maintain separate test and production stacks?
+So you have a Stack named `sam-8ball-1` (or something similar). How does this work if you want to deploy multiple copies of an application? If these were microsites with different database connections? Or, if you wanted to maintain separate test and production stacks?
 
 Earlier you set a default stack name during the guided deploy. But you can override that name by adding `--stack-name <newstackname>` to the deploy command.
 
@@ -322,13 +331,13 @@ So, for example, you could now deploy changes to a test stack, and when you are 
 
 Let's set up a test/prod environment where `sam deploy` will by default submit your changes to your test stack, and `sam deploy --stack-name sam-8ball-prod` will deploy to the production stack.
 
-Edit _samconfig.toml_ and change the stack_name to `sam-8ball-test` (or `sam-8ball-yourname-test`)
+Edit `samconfig.toml` and change the stack_name to `sam-8ball-test` (or `sam-8ball-yourname-test`)
 
 `stack_name = "sam-8ball-test"`
 
-This will set the default deploy stack to test, which is a safe thing to do as you'd rather accidently deploy changes to test than production.
+This will set the default deploy stack to test, which is a safe thing to do as you'd rather accidentally deploy changes to test than production.
 
-Do a `sam deploy` and you'll notice it goes to _sam-8ball-test_.
+Do a `sam deploy` and you'll notice it goes to `sam-8ball-test`.
 
 Now, do a `sam deploy --stack-name sam-8ball-prod`
 
@@ -342,9 +351,9 @@ Notice that both the test and production stacks now how their own unique API URL
 
 Now that you have multiple stacks, and you're sure to create more applications, you'll want to keep track of them all using tags. Though CloudFormation will clean up any deleted resources it is helpful to tag your resources so that others know more about them.
 
-The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the _samconfig.toml_ file and it will replicate those tags among _ALL_ the resources for that stack! Yay! No more forgetting/neglecting organization required tags such as contact info and cost center!
+The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the `samconfig.toml` file and it will replicate those tags among _ALL_ the resources for that stack! Yay! No more forgetting/neglecting organization required tags such as contact info and cost center!
 
-Let's start with just a few. You can add more later. In your _samconfig.toml_ file add this line to the end (Be sure to change the Creator to your name):
+Let's start with just a few. You can add more later. In your `samconfig.toml` file add this line to the end (Be sure to change the Creator to your name):
 
 ```TEXT
 tags = "CostCenter=\"0000\" Creator=\"YOU\" Department=\"Hello World\" Purpose=\"8 Ball is fun - This is an example script\""
@@ -360,7 +369,7 @@ Let's go ahead and update your production stack as well before we forget,
 
 ### Override parameters
 
-You can always override any default parameter in the _samconfig.toml_ file by adding the parameter to the `deploy` command!
+You can always override any default parameter in the `samconfig.toml` file by adding the parameter to the `deploy` command!
 
 For example, we have a parameter we pass to our template called `MyVar` which by default is set to `42` and another called `FavoriteColor` which by default is `black`. However, during the guided deploy I set it to `7G` and `blue` respectively. Suppose for a particular deploy I wanted to override it.
 
@@ -370,11 +379,11 @@ This would deploy the change to test (because I didn't specify a stack name). If
 
 `sam deploy --stack-name sam-8ball-prod --parameter-overrides FavoriteColor="yellow"`
 
-On a not-so-side note, you can see juggling different parameters for different deploy stacks can become a little difficult once you move beyond this simple example. And, what if you accidently mis-type a production stack name? You'd either create a new stack or overwrite a different one!
+On a not-so-side note, you can see juggling different parameters for different deploy stacks can become a little difficult once you move beyond this simple example. And, what if you accidentally mis-type a production stack name? You'd either create a new stack or overwrite a different one!
 
-However, you could create a copy of _samconfig.toml_ called _samconfig-prod.toml_, and change the values within the file.
+However, you could create a copy of `samconfig.toml` called `samconfig-prod.toml`, and change the values within the file.
 
-Deploying to test would be the same `sam deploy` which would use the _samconfig.toml_ file. But then, when you want to deploy to production, just do:
+Deploying to test would be the same `sam deploy` which would use the `samconfig.toml` file. But then, when you want to deploy to production, just do:
 
 `sam deploy --config-file samconfig-prod.toml`
 
@@ -382,7 +391,7 @@ As you get started, this is easy to work with, but as you build more complex app
 
 ### Manage your own S3 deploy bucket (if you want)
 
-You'll also notice that when deploying it will say:
+You'll also notice that when deploying it will say something like:
 
 ```TEXT
 Managed S3 bucket: aws-sam-cli-managed-default-samclisourcebucket-jasfksfe2sd
@@ -391,7 +400,7 @@ A different default S3 bucket can be set in samconfig.toml
 
 This bucket has nothing to do with anything you'll be using in your application. This is just temporary storage for builds and deploys. When you did your first deploy AWS created this bucket for you as it was necessary for the deploy process. You never need to interact with it and you shouldn't use it to store other types of data. This is just for AWS to use and it will use it by default for all of your SAM projects.
 
-If you prefer to have AWS manage your temporary builds in another bucket where access is "Bucket and objects not public" and set a retention policy, you may do so and then add the following to _samconfig.toml_:
+If you prefer to have AWS manage your temporary builds in another bucket where access is "Bucket and objects not public" and set a retention policy, you may do so and then add the following to `samconfig.toml`:
 
 ```TEXT
 s3_bucket = "my-source-bucket"
@@ -414,25 +423,25 @@ We'll delete `sam-8ball-1` and take a tour of what you can see via the web conso
 
 Go to the CloudFormation service and click on Stacks. You should see the three stacks you created.
 
-Click on radio button next to the _sam-8ball-1_ stack and then choose Delete.
+Click on radio button next to the `sam-8ball-1` stack and then choose Delete.
 
 It will then show that a delete is in progress.
 
 Go back to your terminal window and `sam deploy --parameter-overrides MyVar="22"`
 
-Go back to the Stacks listing web page. You'll see that an update is in progress for _sam-8ball-test_ (you may need to hit refresh).
+Go back to the Stacks listing web page. You'll see that an update is in progress for `sam-8ball-test` (you may need to hit refresh).
 
-While these processes complete, let's go into _sam-8ball-prod_ by clicking on it's name.
+While these processes complete, let's go into `sam-8ball-prod` by clicking on it's name.
 
-You'll notice the Stack Info page. If you scroll down to the tags section you'll see that the tags we added to _samconfig.toml_ are listed!
+You'll notice the Stack Info page. If you scroll down to the tags section you'll see that the tags we added to `samconfig.toml` are listed!
 
 Click through the following tabs: Events, Resources, Outputs, Parameters, Template. Some of this should look familiar and be self-evident.
 
 ### Lambda
 
-Still in CloudFormation, go back to the Resources tab. Here you will see all the resources we defined in the _template.yml_ file as well as any CloudFormation created to support our application.
+Still in CloudFormation, go back to the Resources tab. Here you will see all the resources we defined in the `template.yml` file as well as any CloudFormation created to support our application.
 
-Click on the Physical ID for EightBallFunction. This will take you to the Lambda function. You'll see the function's code listed here. If you were to make any changes and deploy the function from here, they would be overritten on the next deploy from the CLI.
+Click on the Physical ID for EightBallFunction. This will take you to the Lambda function. You'll see the function's code listed here. If you were to make any changes and deploy the function from here, they would be overridden on the next deploy from the CLI.
 
 If you scroll down you'll see Environment variables which is set to the parameters we passed to our template and in turn our template assigned to the Lambda environment. If we change the value on this page, just like with the code, it will be overwritten on the next deploy.
 
@@ -456,7 +465,7 @@ Oh, and you can view real-time logs from the AWS-CLI without having to go into C
 
 `sam logs -n EightBallFunction --stack-name sam-8ball-test`
 
-By default this will be 10 minutes worth of logs. You can specify start and end times as well. You'll have to Google how to do that later othwerwise you'll never get through this README.
+By default this will be 10 minutes worth of logs. You can specify start and end times as well. You'll have to Google how to do that later otherwise you'll never get through this README.
 
 You can also get continuous logs:
 
@@ -466,7 +475,7 @@ You can also get continuous logs:
 
 Now hit refresh on your browser and watch the log update! (after a few second delay)
 
-Note how the logs give some additional diagnostics such as duration and memory used. Compare duration of log entries for Cold Starts vs non-cold starts. We're talking milliseconds in this example, barely noticable. It depends on how much housekeeping you have to do during cold start initialization (load external files, get parameters from parameter store, etc).
+Note how the logs give some additional diagnostics such as duration and memory used. Compare duration of log entries for Cold Starts vs non-cold starts. We're talking milliseconds in this example, barely noticeable. It depends on how much housekeeping you have to do during cold start initialization (load external files, get parameters from parameter store, etc).
 
 ## Test Your App Locally
 
@@ -486,7 +495,7 @@ For example: <http://127.0.0.1:3000/>
 
 You'll notice that you'll always receive a COLD START when running locally.
 
-Let's make a change to _app/index.js_ by adding a certainty value (between 0 and 1) to our prediction.
+Let's make a change to `app/index.js` by adding a certainty value (between 0 and 1) to our prediction.
 
 Change:
 
@@ -515,7 +524,7 @@ Hit refresh until you get a positive answer with a certainty level you can perso
 
 `sam deploy`
 
-Test it out using the API url for _sam-8ball-test_
+Test it out using the API url for `sam-8ball-test`
 
 When you are happy, and the 8Ball tells you to, go ahead and deploy to prod. `sam deploy --config-file samconfig-prod.toml`
 
@@ -531,7 +540,7 @@ No need to ask your app if you mastered SAM builds and deploys, you have! _ta-da
 
 In CloudFormation you probably noticed that the resources are given names based on the stack and function name and a random string of characters.
 
-In our template example, resources are not given names in _template.yml_, we have allowed CloudFormation to generate random resource names. This is a recommended practice and you should be able to distinguish between any organization units by proper stack naming conventions.
+In our template example, resources are not given names in `template.yml`, we have allowed CloudFormation to generate random resource names. This is a recommended practice and you should be able to distinguish between any organization units by proper stack naming conventions.
 
 One of the reasons it is bad practice to give your resource a name in a template is that you can't deploy the same template twice as there would be name conflicts. In the `sam-8ball-test` and `sam-8ball-prod` example, if we were to have given our resources names in the template the `sam-8ball-prod` deployment would have failed because there would be a naming conflict.
 
@@ -549,7 +558,7 @@ You can commit your code to a repository. Just have a `.gitignore` file with the
 output.yaml
 ```
 
-Temporary build and package files are placed in an _.aws-sam_ folder so you don't need that in your repo, and you don't need _output.yaml_ either. It is up to you as to whether you want _samconfig*.toml_ included in the repo.
+Temporary build and package files are placed in an `.aws-sam` folder so you don't need that in your repo, and you don't need `output.yaml` either. It is up to you as to whether you want `samconfig*.toml` included in the repo.
 
 After you commit your changes and are ready for a deploy you'll need to still do a build and deploy from the command line.
 
@@ -561,24 +570,20 @@ Eventually, you'll be able to move on to next steps.
 
 You'll know when you are starting to push the limits of managing your projects. If you need a sage, just ask the 8 Ball. When it says it is time to learn more, move on to--
 
-#### Pipeline and AWS CodeStar
+#### AWS CodePipeline
 
-If you are familiar with Code Pipeline you've probably noticed that you are manually performing the Build and Deploy steps.
+If you are familiar with CodePipeline you've probably noticed that you are manually performing the Build and Deploy steps.
 
-If you are not familiar with Code Pipeline, well, you probably noticed that you are manually performing the Build and Deploy steps.
+If you are not familiar with CodePipeline, well, you probably noticed that you are manually performing the Build and Deploy steps.
 
-If this remains managable for you, great. If you are having a hard time managing test vs prod parameters then you might need to expand into AWS Code Pipeline and AWS CodeStar to manage your team and projects.
+If this remains manageable for you, great. If you are having a hard time managing test vs prod parameters then you might need to expand into AWS Code Pipeline to manage your team and projects.
 
-Typically, when creating a development pipeline, there is a branch in your Code Repository that you commit finished code to. Suppose you develop and test locally from the _dev_ branch. When you are ready for the next stage, you can merge your changes into the next logical branch such as _test_ or _production_.
+Typically, when creating a development pipeline, there is a branch in your Code Repository that you commit finished code to. Suppose you develop and test locally from the `dev` branch. When you are ready for the next stage, you can merge your changes into the next logical branch such as `test` or `production`.
 
-If you create a CodePipeline then when you merge and push your changes to your _test_ or _production_ branch Code Pipeline monitors these branches for changes and when new changes are commited, kicks off a build and deploy process.
+If you create a CodePipeline then when you merge and push your changes to your `test` or `production` branch, CodePipeline monitors these branches for changes and when new changes are committed, kicks off a build and deploy process.
 
-This is where I make a plug for AWS CodeStar. However, learning CodeStar and then CodeStar CLI is another progression in understanding SAM. Once you have a lot of concepts of SAM figured out, you may want to start looking into seeing if CodeStar is right for you. I really recommend getting the concepts of SAM down first.
+If you are fine setting up your repo, building, packaging, and deploying manually from the CLI, then that's okay. But if you need more automation then look into the starter pipeline (Atlantis) I developed along with a tutorial.
 
-If you are fine setting up your repo, building, packaging, and deploying manually from the CLI, then that's okay. But if you need more automation then look into CodeStar or the starter pipeline I developed along with a tutorial.
+The Atlantis pipeline uses a standard naming and tagging convention for all resources which makes it easier to set up permissions and separate teams within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix.)
 
-Both CodeStar and the Atlantis pipeline I created will build you a repository, a pipeline, and a project dashboard.
-
-They also use a standard naming convention for all resources which makes it easier to set up permissions boundaries between groups within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix.)
-
-Ready for more? [Visit my CodeStar and starter pipeline tutorial on GitHub](https://github.com/chadkluck/serverless-deploy-pipeline-atlantis)
+Ready for more? [Visit my starter Atlantis CodePipeline tutorial on GitHub](https://github.com/chadkluck/serverless-deploy-pipeline-atlantis)
