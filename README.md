@@ -8,178 +8,7 @@ It will not get into creating templates, adding data storage, or all the cool th
 
 To start building your own SAM applications and to learn the concepts behind what is demonstrated here, I recommend _Running Serverless_ by Gojko Adzic.
 
-## Set Up Local Machine
-
-AWS SAM CLI extends the AWS CLI, so if you already have AWS CLI installed, you may be able to skip a few steps.
-
-The following steps are taken from chapter 2 of _Running Serverless_ by Gojko Adzic.
-
-### Python
-
-Check Python to make sure it is installed.
-
-`python --version`
-
-(On Mac or Linux it may be `python3 --version`)
-
-If it is not installed, go to the Python website for instructions: <https://www.python.org>
-
-### PIP
-
-Do same with pip
-
-`pip --version`
-
-<https://pip.pypa.io>
-
-### AWS CLI
-
-`aws --version`
-
-Install version 2: <https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html>
-
-More info: <https://docs.aws.amazon.com/cli>
-
-### Docker
-
-`docker --version`
-
-Install Docker to simulate the Lambda execution environment. The free community Docker Desktop tools is all you need for local testing.
-
-<https://www.docker.com/products/docker-desktop>
-
-NOTE: Docker will not run on Windows 10 Home Edition.
-
-### Node
-
-`node --version`
-
-<https://nodejs.org>
-
-I recommend 20 or later. As of 11/14/2023, Node version 20 is supported by Lambda. Make sure the version you plan on using is set in `template.yml`.
-
-More information on [Lambda Supported Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html).
-
-
-### SAM Command Line Tools
-
-#### Homebrew
-
-`brew tap aws/tap`
-`brew install aws-sam-cli`
-
-#### Non-Homebrew
-
-`pip install aws-sam-cli`
-
-#### Verify
-
-After install:
-
-`sam --version`
-
-And you should get something like: `SAM CLI, version 1.118.0`
-
-## Set up your access credentials
-
-AWS SAM CLI uses the same credentials from AWS CLI. You can skip this step if you are already using AWS CLI to access your AWS resources.
-
-You will need an access key ID and secret key ID (Note: For enterprise and SSO managed accounts this is set up differently)
-
-Note that there are many ways to do this so that the IAM user has restricted access. If you are on your personal account the following steps are okay. After all, you are master of your own domain. If you are on an organizational account where changes will impact other projects and people, follow the practices of your IT org.
-
-The following steps are (for the most part) taken from chapter 2 of _Running Serverless_ by Gojko Adzic. For any alternate steps, or troubleshooting, I would refer you to the book.
-
-1. Sign into the AWS Web Console at <https://aws.amazon.com>
-2. Select the IAM service
-3. In the left-hand IAM menu, select Users
-4. Click on the Add User button
-5. On the next screen, enter a name for the user account then, in the "Select AWS access type" section, select Programmatic acccess.
-6. Click the Next button to assign permissions, then select Attach existing policies directly
-7. In the list of policies, find the PowerUserAccess and IAMFullAccess policies and tick the check boxes next to them
-8. You can skip the remaining wizard steps.
-9. The final page will show you the access key ID and show a link to reveal the secret key. Reveal the secret key and copy both keys somewhere.
-
-Once you have the keys run the following: `aws configure`
-
-Paste in the keys when prompted. For region use `us-east-1` or whatever your default region should be. For default output use `json` or press Enter to keep it unset.
-
-Check it out: `aws sts get-caller-identity`
-
-## Once you have a user account
-
-Make sure your role has the following permissions:
-
-- arn:aws:iam::aws:policy/AWSLambdaFullAccess
-- arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator
-- arn:aws:iam::aws:policy/CustomPolicySAM
-
-AWSLambdaFullAccess and AmazonAPIGatewayAdministrator are AWS Managed policies. Create the CustomPolicySAM with the following:
-
-```JSON
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "SAMIAMPolicies",
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateRole",
-                "iam:AttachRolePolicy",
-                "iam:DetachRolePolicy",
-                "iam:GetRole",
-                "iam:DeleteRole",
-                "iam:TagPolicy",
-                "iam:TagRole",
-                "iam:UntagPolicy",
-                "iam:UntagRole"
-            ],
-            "Resource": "arn:aws:iam::*:role/sam-*"
-        },
-        {
-            "Sid": "SAMPassRolePolicy",
-            "Effect": "Allow",
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Resource": "arn:aws:iam::*:role/sam-*",
-            "Condition": {
-                "StringEquals": { 
-                    "iam:PassedToService": "lambda.amazonaws.com"
-                },
-                "ArnLike": {
-                    "iam:AssociatedResourceARN": "arn:aws:lambda:*:*:function:sam-*"
-                }
-            }
-        }
-    ]
-}
-```
-
-In the above policy JSON, `*:*` in the `iam:AssociatedResourceARN` should be replaced with your region and account ID, such as `"arn:aws:lambda:us-east-2:1234567890123:function:sam-*"`. It will work as is, but it is best practice to always scope down permissions as much as possible. You can also replace the `*` in `Resource` with your account ID. `"arn:aws:iam::1234567890123:role/sam-*"` (region isn't necessary).
-
-Also create a new policy on the account for for CloudFormation:
-
-```JSON
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "cloudformation:*",
-            "Resource": "*"
-        }
-    ]
-}
-```
-
-These are still pretty wide permissions, and are best reserved for sandbox and development, not production accounts.
-
-For this example we will be using names such as `sam-8ball-*` so you could restrict resources based on that or whatever other naming convention you'll be using for the example. Typically you'll want to segregate dev units by naming conventions in the arn anyway.
-
-```TEXT
-"Resource": "*/sam-8ball-*"
-```
+> If you need to set up your local development environment and/or AWS account to provide access for SAM actions please review the [Setting Up Environment documentation](./README-Setting-Up-Env.md) or follow your organization's procedure.
 
 ## Tutorial
 
@@ -187,7 +16,7 @@ The book _Running Serverless_ by Gojko Adzic will walk you through creating a Cl
 
 The commands below will give you a quick hands-on approach, but the actions behind the commands are explained better in the book.
 
-One key to understanding SAM and eventually maybe even CodeStar is to occasionally look under the hood and gain an understanding of what is beneath as you progress. A lot is automatically done for you as you start out, but as you see and begin to understand the magic, and begin to craft your own code and yaml, you can wield even greater power offered by the platform.
+One key to understanding SAM is to occasionally look under the hood and gain an understanding of what is beneath as you progress. A lot is automatically done for you as you start out, but as you see and begin to understand the magic, and begin to craft your own code and yaml, you can wield even greater power offered by the platform.
 
 But, before we start tinkering under the hood, let's take it for a test drive!
 
@@ -544,7 +373,7 @@ In our template example, resources are not given names in `template.yml`, we hav
 
 One of the reasons it is bad practice to give your resource a name in a template is that you can't deploy the same template twice as there would be name conflicts. In the `sam-8ball-test` and `sam-8ball-prod` example, if we were to have given our resources names in the template the `sam-8ball-prod` deployment would have failed because there would be a naming conflict.
 
-One way to get past that is to pass a parameter for `Stage` and `ProjectID` and incorporate that into your resource names. This is what CodeStar does and you can use any organizational naming conventions in the Project ID.
+One way to get past that is to pass a parameter for `Stage` and `ProjectID` and incorporate that into your resource names. You can use any organizational naming conventions in the Project ID.
 
 For now though, we'll let CloudFormation name them. Just know that as you develop real applications and if you have a need to change resource names, you can.
 
