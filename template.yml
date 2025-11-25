@@ -33,7 +33,7 @@ Resources:
     Properties:
       CodeUri: app/
       Handler: index.get
-      Runtime: nodejs22.x
+      Runtime: nodejs24.x
       RolePath: /
       PermissionsBoundary: !Ref 'AWS::NoValue' # Leave as-is unless your organization requires a permissions boundary
       Environment:
