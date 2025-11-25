@@ -34,7 +34,7 @@ Resources:
       CodeUri: app/
       Handler: index.get
       Runtime: nodejs24.x
-      RolePath: /
+      RolePath: / # Leave as-is unless your organization requires a Role path for applications
       PermissionsBoundary: !Ref 'AWS::NoValue' # Leave as-is unless your organization requires a permissions boundary
       Environment:
           Variables:
