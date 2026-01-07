@@ -19,15 +19,25 @@ Globals:
 
 # API Gateway is automatically created with just the function resource declared.
 # Deploy as is and see how it works.
-# Then, to see how things change when you declare the api gateway on your own, uncomment all the lines and re-build and re-deploy
-# Note that the api sub domain will change (and will be listed in the Outputs section). This is because you discarded the default API and declared your own.
-# You may uncomment _EVERYTHING_ below this line (and remove this comment block if you wish)
+
+# Then, to see how things change when you declare the api gateway on your own
+# 1. Uncomment all 4 WebApi lines PLUS...
+# 2. Uncomment the EightBallFunction.Events.GetEvent.Properties.Method.RestApiId PLUS...
+# 3. Uncomment the entire Outputs section
+# 4. Then re-build and re-deploy
+#
+# Note that the api sub domain will change (and will be listed in the Outputs section). 
+# This is because you discarded the default API and declared your own.
+
+# You may uncomment _ALL_COMMENTED_LINES_ below to see the WebApi resource in action.
 
 Resources:
-#  WebApi:
-#    Type: AWS::Serverless::Api
-#    Properties: 
-#      StageName: "Prod"
+
+  # WebApi:
+  #   Type: AWS::Serverless::Api
+  #   Properties: 
+  #     StageName: "Prod"
+
   EightBallFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -46,8 +56,8 @@ Resources:
           Properties:
             Path: /
             Method: get
-#            RestApiId: !Ref WebApi
-#Outputs:
-#  UserAPI:
-#    Description: "API Gateway URL"
-#    Value: !Sub "https://${WebApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  #           RestApiId: !Ref WebApi
+  # Outputs:
+  # UserAPI:
+  #   Description: "API Gateway URL"
+  #   Value: !Sub "https://${WebApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
