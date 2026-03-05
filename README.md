@@ -1,6 +1,6 @@
 # Serverless Application Model 8 Ball Example
 
-This is a sample of the Serverless Application Model that deviates from the traditional "Hello World" as instead it returns JSON formatted magical predictions.
+This is a sample of the Serverless Application Model that deviates from the traditional "Hello World" by returning JSON-formatted magical predictions.
 
 This README will guide you through AWS-SAM-CLI setup, account permissions, and then a quick hands-on introduction to using the SAM CLI to give you an idea of what SAM has to offer and how easy it can be to implement.
 
@@ -14,7 +14,7 @@ To start building your own SAM applications and to learn the concepts behind wha
 
 The book _Running Serverless_ by Gojko Adzic will walk you through creating a CloudFormation template, a Node.js script that accesses an S3 bucket, and automated tests, so I highly recommend getting a copy.
 
-The commands below will give you a quick hands-on approach, but the actions behind the commands are explained better in the book.
+The commands below provide a quick hands-on approach, but the actions behind them are explained in more detail in the book.
 
 One key to understanding SAM is to occasionally look under the hood and gain an understanding of what is beneath as you progress. A lot is automatically done for you as you start out, but as you see and begin to understand the magic, and begin to craft your own code and yaml, you can wield even greater power offered by the platform.
 
@@ -23,8 +23,6 @@ But, before we start tinkering under the hood, let's take it for a test drive!
 > If your organization requires the use of IAM Role Paths and Permissions Boundaries, you will need to update the Lambda function properties in `template.yml` accordingly.
 
 ## Build and Deploy
-
-In November 2019 AWS simplified the Build and Deploy commands and process. You no longer need to establish an S3 bucket for builds, nor do you have to worry about the `sam package` command. Also, the commands were simplified. [Read more about how the process was simplified](https://aws.amazon.com/blogs/compute/a-simpler-deployment-experience-with-aws-sam-cli/), or just move on. I only mention it in case you come across documentation that talks about the package command and a separate S3 bucket.
 
 ### Build
 
@@ -38,7 +36,7 @@ Learn more about [sam build on the CLI Command Reference page](https://docs.aws.
 
 ### Deploy
 
-> Note: This tutorial will recommend using `--profile <your-profile>` for `sam` and `aws` CLI commands. This is a useful habit when you begin to work with multiple roles and/or AWS accounts.
+> Note: This tutorial will recommend using `--profile <your-profile>` for `sam` and `aws` CLI commands. This is a useful habit when you begin to work with multiple roles and/or AWS accounts. Replace `<your-profile>` or `default` with the profile name you set up during `aws config`.
 
 Now you will need to come up with a name for your stack. If you are using your own account, for the purposes of this tutorial I would recommend `sam-8ball-1`. If you are using an account shared with others I would suggest adding your name to the stack name. `sam-8ball-<yourname>-1`. We will later deploy a `-test` and a `-prod` and, if you need to, you may always increment the number on the end. You can deploy the same app any number of times!
 
