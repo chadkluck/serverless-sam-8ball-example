@@ -38,11 +38,13 @@ Learn more about [sam build on the CLI Command Reference page](https://docs.aws.
 
 ### Deploy
 
+> Note: This tutorial will recommend using `--profile <your-profile>` for `sam` and `aws` CLI commands. This is a useful habit when you begin to work with multiple roles and/or AWS accounts.
+
 Now you will need to come up with a name for your stack. If you are using your own account, for the purposes of this tutorial I would recommend `sam-8ball-1`. If you are using an account shared with others I would suggest adding your name to the stack name. `sam-8ball-<yourname>-1`. We will later deploy a `-test` and a `-prod` and, if you need to, you may always increment the number on the end. You can deploy the same app any number of times!
 
-Let's deploy our app. For the first deploy we will add `--guided` to the command (to set up our parameters).
+Let's deploy our app. For the first deploy we will add `--guided` to the command (to set up our parameters). (The `--profile default` ensures your current credentials are used. Change `default` to whatever AWS profile you are using.)
 
-`sam deploy --guided`
+`sam deploy --guided --profile default`
 
 You will then be asked to answer the following questions. The default response is in the brackets []. Supply your own Stack Name, Region, and MyVar value. Hit Enter for the SAM config file and environment.
 
@@ -65,7 +67,7 @@ SAM configuration environment [default]:
 
 It will now save your settings in a `samconfig.toml` file so you don't need to mess with long commands such as `sam deploy --template-file output.yaml --stack-name sam-8ball-1 --capabilities CAPABILITY_IAM`.
 
-From now on you can just do `sam deploy`
+From now on you can just do `sam deploy --profile default` (change `default` to your profile name if different).
 
 Your stack should be in the deploy process now. If there are any errors you will need to correct them and then deploy again. `sam deploy`
 
@@ -158,7 +160,7 @@ So, for example, you could now deploy changes to a test stack, and when you are 
 
 ### Change default stack
 
-Let's set up a test/prod environment where `sam deploy` will by default submit your changes to your test stack, and `sam deploy --stack-name sam-8ball-prod` will deploy to the production stack.
+Let's set up a test/prod environment where `sam deploy` will by default submit your changes to your test stack, and `sam deploy --stack-name sam-8ball-prod --profile default` will deploy to the production stack.
 
 Edit `samconfig.toml` and change the stack_name to `sam-8ball-test` (or `sam-8ball-yourname-test`)
 
@@ -168,7 +170,7 @@ This will set the default deploy stack to test, which is a safe thing to do as y
 
 Do a `sam deploy` and you'll notice it goes to `sam-8ball-test`.
 
-Now, do a `sam deploy --stack-name sam-8ball-prod`
+Now, do a `sam deploy --stack-name sam-8ball-prod --profile default`
 
 You'll see it will update any changes to the production stack.
 
@@ -180,7 +182,7 @@ Notice that both the test and production stacks now how their own unique API URL
 
 Now that you have multiple stacks, and you're sure to create more applications, you'll want to keep track of them all using tags. Though CloudFormation will clean up any deleted resources it is helpful to tag your resources so that others know more about them.
 
-The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the `samconfig.toml` file and it will replicate those tags among _ALL_ the resources for that stack! Yay! No more forgetting/neglecting organization required tags such as contact info and cost center!
+The good news is, that instead of tracking down all the resources CloudFormation creates for you, you can set the tags in the `samconfig.toml` file and it will replicate those tags among _ALL_ the resources for that stack! Yay! No more forgetting/neglecting organization-required tags such as contact info and cost center!
 
 Let's start with just a few. You can add more later. In your `samconfig.toml` file add this line to the end (Be sure to change the Creator to your name):
 
@@ -190,7 +192,7 @@ tags = "CostCenter=\"0000\" Creator=\"YOU\" Department=\"Hello World\" Purpose=\
 
 Now,
 
-`sam deploy`
+`sam deploy --profile default`
 
 Let's go ahead and update your production stack as well before we forget,
 
@@ -202,32 +204,32 @@ You can always override any default parameter in the `samconfig.toml` file by ad
 
 For example, we have a parameter we pass to our template called `MyVar` which by default is set to `42` and another called `FavoriteColor` which by default is `black`. However, during the guided deploy I set it to `7G` and `blue` respectively. Suppose for a particular deploy I wanted to override it.
 
-`sam deploy --parameter-overrides FavoriteColor="yellow"`
+`sam deploy --parameter-overrides FavoriteColor="yellow" --profile default`
 
 This would deploy the change to test (because I didn't specify a stack name). If I wanted to send it to production:
 
-`sam deploy --stack-name sam-8ball-prod --parameter-overrides FavoriteColor="yellow"`
+`sam deploy --stack-name sam-8ball-prod --parameter-overrides FavoriteColor="yellow" --profile default`
 
-On a not-so-side note, you can see juggling different parameters for different deploy stacks can become a little difficult once you move beyond this simple example. And, what if you accidentally mis-type a production stack name? You'd either create a new stack or overwrite a different one!
+On a not-so-side note, you can see that juggling different parameters for different deploy stacks can become a little difficult once you move beyond this simple example. And, what if you accidentally mis-type a production stack name? You'd either create a new stack or overwrite a different one!
 
 However, you could create a copy of `samconfig.toml` called `samconfig-prod.toml`, and change the values within the file.
 
 Deploying to test would be the same `sam deploy` which would use the `samconfig.toml` file. But then, when you want to deploy to production, just do:
 
-`sam deploy --config-file samconfig-prod.toml`
+`sam deploy --config-file samconfig-prod.toml --profile default`
 
-As you get started, this is easy to work with, but as you build more complex applications you'll want to look into pipelines, buildspecs, and conditionals in your templates.
+As you get started, this is easy to work with, but as you build more complex applications, you'll want to look into pipelines, buildspecs, and conditionals in your templates.
 
 ### Manage your own S3 deploy bucket (if you want)
 
-You'll also notice that when deploying it will say something like:
+You'll also notice that when deploying, it will say something like:
 
 ```TEXT
 Managed S3 bucket: aws-sam-cli-managed-default-samclisourcebucket-jasfksfe2sd
 A different default S3 bucket can be set in samconfig.toml
 ```
 
-This bucket has nothing to do with anything you'll be using in your application. This is just temporary storage for builds and deploys. When you did your first deploy AWS created this bucket for you as it was necessary for the deploy process. You never need to interact with it and you shouldn't use it to store other types of data. This is just for AWS to use and it will use it by default for all of your SAM projects.
+This bucket has nothing to do with anything you'll be using in your application. This is just temporary storage for builds and deploys. When you did your first deploy, AWS created this bucket for you as it was necessary for the deploy process. You never need to interact with it, and you shouldn't use it to store other types of data. This is just for AWS to use and it will use it by default for all of your SAM projects.
 
 If you prefer to have AWS manage your temporary builds in another bucket where access is "Bucket and objects not public" and set a retention policy, you may do so and then add the following to `samconfig.toml`:
 
@@ -246,7 +248,7 @@ More info: <https://docs.aws.amazon.com/serverless-application-model/latest/deve
 
 We'll delete `sam-8ball-1` and take a tour of what you can see via the web console.
 
-[Sign into the AWS Console](https://aws.amazon.com)
+[Sign into the AWS Console](https://aws.amazon.com) or use the link provided by your organization.
 
 ### CloudFormation
 
@@ -292,13 +294,13 @@ Oh, and of course you'll notice a log of predictions. You can format log outputs
 
 Oh, and you can view real-time logs from the AWS-CLI without having to go into CloudWatch:
 
-`sam logs -n EightBallFunction --stack-name sam-8ball-test`
+`sam logs -n EightBallFunction --stack-name sam-8ball-test --profile default`
 
 By default this will be 10 minutes worth of logs. You can specify start and end times as well. You'll have to Google how to do that later otherwise you'll never get through this README.
 
 You can also get continuous logs:
 
-`sam logs -n EightBallFunction --stack-name sam-8ball-test --tail`
+`sam logs -n EightBallFunction --stack-name sam-8ball-test --tail --profile default`
 
 (It will, however, go back to the regular command prompt after a few minutes)
 
@@ -351,11 +353,11 @@ Now ask "Should I deploy to test?" and hit refresh.
 
 Hit refresh until you get a positive answer with a certainty level you can personally accept.
 
-`sam deploy`
+`sam deploy --profile default`
 
 Test it out using the API url for `sam-8ball-test`
 
-When you are happy, and the 8Ball tells you to, go ahead and deploy to prod. `sam deploy --config-file samconfig-prod.toml`
+When you are happy, and the 8Ball tells you to, go ahead and deploy to prod. `sam deploy --config-file samconfig-prod.toml --profile default`
 
 No need to ask your app if you mastered SAM builds and deploys, you have! _ta-da!_ _confetti_
 
@@ -415,4 +417,4 @@ If you are fine setting up your repo, building, packaging, and deploying manuall
 
 The Atlantis pipeline uses a standard naming and tagging convention for all resources which makes it easier to set up permissions and separate teams within an organization. (For example, if you name all your projects with a `dept-projectname` ID where `dept` is your department/unit, then you can set up IAM policies that allow developers in that department/unit to have access to only resources with the `dept-` prefix.)
 
-Ready for more? [Visit my starter Atlantis CodePipeline tutorial on GitHub](https://github.com/chadkluck/serverless-deploy-pipeline-atlantis)
+Ready for more? [Visit 63Klabs on GitHub for tutorials and the Atlantis Templates and Scripts Platform for AWS SAM Deployments](https://github.com/63klabs)
